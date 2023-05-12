@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { ConfirmComponent } from 'src/app/modules/shared/components/confirm/confirm.component';
 import { CategoryService } from 'src/app/modules/shared/services/category.service';
 import { runInThisContext } from 'vm';
 import { NewCategoryComponent } from '../new-category/new-category.component';
@@ -20,6 +22,10 @@ export class CategoryComponent implements OnInit {
   }
   displayedColumns: string[] = ['id','name','description','actions'];
   dataSource = new MatTableDataSource<CategoryElement>()
+
+  @ViewChild(MatPaginator)
+  paginator! : MatPaginator
+
   getCategories(){
     this.categoryService.getCategories()
       .subscribe( {
@@ -42,6 +48,7 @@ export class CategoryComponent implements OnInit {
         });
 
         this.dataSource = new MatTableDataSource<CategoryElement>(dataCategory)
+        this.dataSource.paginator = this.paginator;
       }
     }
 
@@ -76,6 +83,33 @@ export class CategoryComponent implements OnInit {
           this.openSnackBar("se produjo un error al Actualizar" ,  "Error");
         }
       });
+    }
+
+    delete(id:any){
+      const dialogRef = this.dialog.open( ConfirmComponent , {
+        width:'450px',
+        data:{id:id}
+        
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if(result == 1){
+          this.openSnackBar("Categoria Eliminada" , "Exitosa");
+          this.getCategories();
+        }else if(result == 2){
+          this.openSnackBar("se produjo un error al Eliminar" ,  "Error");
+        }
+      });
+    }
+
+    buscar(termino: string){
+      if(termino.length === 0){
+        return this.getCategories();
+      }
+      this.categoryService.getCategoryById(termino)
+        .subscribe((resp:any) => {
+            this.processCategoriesResponse(resp);
+        })
     }
 
     openSnackBar(message:string, action:string):MatSnackBarRef<SimpleSnackBar>{
