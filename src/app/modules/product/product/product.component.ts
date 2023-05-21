@@ -44,7 +44,7 @@ export class ProductComponent implements OnInit {
     if(resp.metadata[0].code == "00"){
       let listCProduct = resp.product.products;
       listCProduct.forEach((element: ProductElement) => {
-        element.category =element.category.name
+        //element.category =element.category.name
         element.picture = this.sanitizer.bypassSecurityTrustResourceUrl(`data:image/png;base64, ${element.picture}`);
         dateProduct.push(element);
       });
@@ -72,6 +72,22 @@ export class ProductComponent implements OnInit {
     return this.snackBar.open(message,action , {
       duration:2000
     })
+  }
+  edit(id:number , name: string , price:number,quantity:number,category:any){
+    const dialogRef = this.dialog.open( NewProductComponent , {
+      width : '450px',
+      data:{id:id , name:name , price:price , quantity:quantity,category:category}
+      
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result == 1){
+        this.openSnackBar("Producto editado" , "Exitosa");
+        this.getProducts();
+      }else if(result == 2){
+        this.openSnackBar("se produjo un error al editar" ,  "Error");
+      }
+    });
   }
 }
 
