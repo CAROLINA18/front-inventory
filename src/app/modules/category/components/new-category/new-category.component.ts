@@ -37,7 +37,8 @@ export class NewCategoryComponent implements OnInit {
       description:this.categoryForm.get('description')?.value
     }
 
-    if(data != null){
+    if(this.data != null){
+      console.log(this.data.id)
       this.categoryServices.updateCategory(data , this.data.id)
         .subscribe((data:any)=>{
           this.dialogRef.close(1);
